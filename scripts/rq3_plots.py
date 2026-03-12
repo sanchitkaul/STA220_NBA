@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Loading merged dataset
+# Loading the merged dataset
 df = pd.read_csv("data/nba_clutch_merged.csv") 
 
 top10 = df.sort_values("clutch_win_pct", ascending=False).head(10).copy()
