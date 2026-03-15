@@ -1,0 +1,92 @@
+\documentclass[12pt]{article}
+
+% Page geometry — full-width single column
+\usepackage[margin=1in]{geometry}
+
+% Core packages
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{url}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue, bookmarks=true, bookmarksopen=true]{hyperref}
+\usepackage{cleveref}
+\usepackage{lipsum}
+
+% Bibliography
+\usepackage[numbers]{natbib}
+
+% Section spacing
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{1.5ex plus .5ex minus .2ex}{1ex plus .2ex}
+\titlespacing*{\subsection}{0pt}{1ex plus .3ex minus .2ex}{0.5ex plus .1ex}
+
+% ---------------------------------------------------------------
+\begin{document}
+
+\title{\textbf{A Statistical Analysis of NBA Clutch Performance}}
+
+\author{
+    Sanchit Kaul \quad Krishna Karthik \quad Adesh Jothi Prasanna \\[4pt]
+    Devarchith Parashara Batchu
+}
+
+\date{\today}
+
+\maketitle
+\thispagestyle{plain}
+
+% ---------------------------------------------------------------
+% Abstract
+% ---------------------------------------------------------------
+\begin{abstract}
+\input{sections/sec-abstract}
+\end{abstract}
+
+% ---------------------------------------------------------------
+% Main Sections
+% ---------------------------------------------------------------
+\input{sections/sec-introduction}
+
+\input{sections/sec-methods}
+
+\input{sections/sec-results}
+
+\input{sections/sec-summary}
+
+% ---------------------------------------------------------------
+% References
+% ---------------------------------------------------------------
+\newpage
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+% ---------------------------------------------------------------
+% List of Figures and Tables
+% ---------------------------------------------------------------
+\newpage
+\section{List of Figures and Tables}
+
+\begin{table}[ht]
+    \centering
+    \renewcommand{\arraystretch}{1.4}
+    \small
+    \begin{tabular}{@{} c l p{6.5cm} c @{}}
+        \toprule
+        \textbf{Figure} & \textbf{Chart Type} & \textbf{Description} & \textbf{RQ} \\
+        \midrule
+        1 & Scatter plot   & Regular-Season Win\% vs Clutch Win\%                          & RQ1 \\
+        2 & Bar chart      & Clutch Win\% minus Regular-Season Win\% (all 30 teams)        & RQ1 \\
+        3 & Heatmap        & Pearson correlation matrix across 11 clutch variables          & RQ2 \\
+        4 & Scatter plot   & Clutch eFG\% vs Clutch Win\%                                  & RQ2 \\
+        5 & Quadrant plot  & Clutch eFG\% vs Clutch TOV\% with mean reference lines        & RQ2 \\
+        6 & Dot plot       & Top 10 vs Bottom 10 teams by Clutch Win\%                     & RQ2 \\
+        7 & Slope chart    & Regular-Season vs Clutch FG\%, top 10 clutch teams            & RQ3 \\
+        8 & Dumbbell plot  & Regular-Season vs Clutch 3P\%, top 10 clutch teams            & RQ3 \\
+        9 & Slope chart    & Regular-Season vs Clutch FT\%, top 10 clutch teams            & RQ3 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\end{document}

@@ -1,0 +1,112 @@
+\section{Methods}
+
+\subsection{Data Acquisition}
+
+\begin{sloppypar}
+We pulled all our data directly from NBA.com using the \texttt{nba\_api} Python library, which lets you query the same endpoints
+that power the \texttt{stats.nba.com} website. For the 2024-25 regular season, three separate tables were downloaded at the team level.
+
+The first was the clutch traditional stats table, which we got from the \texttt{LeagueDashTeamClutch} endpoint using the Base
+measure type. This gives standard box score numbers (points, field goal percentage, turnovers, and so on) but only
+for clutch situations. The second pull used the same endpoint but switched to the Four Factors measure type, which returns
+Dean Oliver's four factors: effective field goal percentage, turnover rate, free throw rate, and offensive rebounding
+percentage. The third dataset came from \texttt{LeagueDashTeamStats} and covered the full regular season using the Base
+measure type, giving us the same box score columns but aggregated across all games, not just the close ones.
+
+Every call used \texttt{per\_mode = ``PerGame''} and was set to the 2024-25 regular season. For the clutch-specific
+calls, we also passed \texttt{clutch\_time = ``Last 5 Minutes''}, \texttt{ahead\_behind = ``Ahead or Behind''}, and
+\texttt{point\_diff = 5}, which is exactly how the NBA defines a clutch situation. We added a short sleep between
+requests so we did not get rate-limited. The three files were saved as \texttt{clutch\_traditional.csv},
+\texttt{clutch\_four\_factors.csv}, and \texttt{regular\_traditional.csv}.
+\end{sloppypar}
+
+\subsection{Data Cleaning and Preprocessing}
+
+\begin{sloppypar}
+Once we had the raw files loaded into pandas DataFrames, we did a few rounds of cleaning before anything else.
+
+First, we trimmed each dataset down to only the columns we actually needed. Team IDs, league IDs, and rank columns were
+all dropped since they added no analytical value. The columns we kept from each file are listed in Table~\ref{tab:columns}.
+After that, we ran \texttt{.str.strip()} on all the team name fields, as there were some trailing spaces that would have
+broken the merge otherwise.
+
+We also renamed every variable using a prefix system: anything from the clutch datasets got a \texttt{clutch\_} prefix,
+and regular season columns got \texttt{reg\_}. So for example \texttt{W\_PCT} became either \texttt{clutch\_win\_pct} or
+\texttt{reg\_win\_pct} depending on which file it came from. This made it easy to tell variables apart throughout the
+rest of the analysis without having to look anything up.
+
+Before merging, we also checked for duplicate team entries in each file. None were found. Data types looked fine across
+the board; everything numeric was already float or int, so no conversion was needed.
+\end{sloppypar}
+
+\begin{table}[ht]
+    \centering
+    \caption{Columns kept from each source file.}
+    \label{tab:columns}
+    \renewcommand{\arraystretch}{1.4}
+    \small
+    \begin{tabular}{@{} l p{8cm} l @{}}
+        \toprule
+        \textbf{Dataset} & \textbf{Columns Retained} & \textbf{Prefix} \\
+        \midrule
+        \texttt{clutch\_traditional.csv}  &
+            \texttt{TEAM\_NAME, GP, W, L, W\_PCT, PTS, FG\_PCT,} \newline
+            \texttt{FG3\_PCT, FT\_PCT, REB, AST, TOV, PLUS\_MINUS} &
+            \texttt{clutch\_} \\[6pt]
+        \texttt{clutch\_four\_factors.csv} &
+            \texttt{TEAM\_NAME, EFG\_PCT, FTA\_RATE,} \newline
+            \texttt{TM\_TOV\_PCT, OREB\_PCT} &
+            \texttt{clutch\_} \\[6pt]
+        \texttt{regular\_traditional.csv} &
+            \texttt{TEAM\_NAME, GP, W, L, W\_PCT, PTS, FG\_PCT,} \newline
+            \texttt{FG3\_PCT, FT\_PCT, REB, AST, TOV, PLUS\_MINUS} &
+            \texttt{reg\_} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Dataset Merging}
+
+\begin{sloppypar}
+We merged the three cleaned tables in two steps, both using inner joins on the team name column. First,
+\texttt{clutch\_traditional} and \texttt{clutch\_four\_factors} were joined together. Then that combined table was joined
+with \texttt{reg\_traditional}. Since all three files came from the same season and covered all 30 teams, no rows dropped
+out during either join. The final dataset, \texttt{nba\_clutch\_merged.csv}, has one row per team, 30 rows total,
+and 33 columns.
+\end{sloppypar}
+
+\subsection{Feature Engineering}
+
+\begin{sloppypar}
+We created one new variable for RQ1. To see which teams over- or under-performed in clutch situations compared to their
+overall record, we subtracted regular season win percentage from clutch win percentage:
+\end{sloppypar}
+
+\begin{equation}
+    \texttt{clutch\_minus\_reg\_win\_pct} \;=\; \texttt{clutch\_win\_pct} \;-\; \texttt{reg\_win\_pct}
+\end{equation}
+
+A positive value means the team won more clutch games than you would expect based on their season record. A negative
+value means the opposite. This column drives the bar chart in Plot 2 of RQ1.
+
+\subsection{Statistical Analysis}
+
+\begin{sloppypar}
+For RQ2, the main method was Pearson correlation. We used \texttt{DataFrame.corr()} in pandas to calculate the
+correlation between \texttt{clutch\_win\_pct} and ten other clutch-time variables:
+
+\begin{center}
+\texttt{clutch\_fg\_pct},\ \texttt{clutch\_3p\_pct},\ \texttt{clutch\_ft\_pct},\ \texttt{clutch\_efg\_pct},\
+\texttt{clutch\_tov},\ \texttt{clutch\_tov\_pct},\ \texttt{clutch\_reb},\ \texttt{clutch\_orb\_pct},\
+\texttt{clutch\_ft\_rate},\ \texttt{clutch\_fta}
+\end{center}
+
+We went with Pearson because all the variables are continuous and we were interested in linear relationships. We did not
+build any predictive models; the goal here was exploratory, not inferential.
+
+For RQ3, we filtered down to just the ten teams with the highest \texttt{clutch\_win\_pct} and compared their shooting
+percentages between the regular season and clutch play. That meant pairing up \texttt{reg\_fg\_pct} with
+\texttt{clutch\_fg\_pct}, \texttt{reg\_3p\_pct} with \texttt{clutch\_3p\_pct}, and \texttt{reg\_ft\_pct} with
+\texttt{clutch\_ft\_pct} for each of those teams.
+\end{sloppypar}
+

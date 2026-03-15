@@ -1,0 +1,19 @@
+dump/
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.synctex.gz
+
+# Compiled output
+main.pdf
+
+# macOS
+.DS_Store
