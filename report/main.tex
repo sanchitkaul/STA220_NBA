@@ -6,6 +6,7 @@
 % Core packages
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
+\usepackage{float}
 \usepackage[table]{xcolor}
 \usepackage{booktabs}
 \usepackage{tabularx}
@@ -21,6 +22,11 @@
 \usepackage{titlesec}
 \titlespacing*{\section}{0pt}{1.5ex plus .5ex minus .2ex}{1ex plus .2ex}
 \titlespacing*{\subsection}{0pt}{1ex plus .3ex minus .2ex}{0.5ex plus .1ex}
+
+% Paragraph formatting
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0pt}
+\raggedbottom
 
 % ---------------------------------------------------------------
 \begin{document}
@@ -56,14 +62,6 @@
 \input{sections/sec-summary}
 
 % ---------------------------------------------------------------
-% References
-% ---------------------------------------------------------------
-\newpage
-\bibliographystyle{plainnat}
-\nocite{*}
-\bibliography{references}
-
-% ---------------------------------------------------------------
 % List of Figures and Tables
 % ---------------------------------------------------------------
 \newpage
@@ -71,23 +69,33 @@
 
 \begin{table}[ht]
     \centering
+    \caption{Summary of all figures, source scripts, and associated research questions.}
+    \label{tab:figures}
     \renewcommand{\arraystretch}{1.4}
     \small
-    \begin{tabular}{@{} c l p{6.5cm} c @{}}
+    \begin{tabular}{@{} c l p{5.5cm} l c @{}}
         \toprule
-        \textbf{Figure} & \textbf{Chart Type} & \textbf{Description} & \textbf{RQ} \\
+        \textbf{Fig.} & \textbf{Chart Type} & \textbf{Description} & \textbf{Script} & \textbf{RQ} \\
         \midrule
-        1 & Scatter plot   & Regular-Season Win\% vs Clutch Win\%                          & RQ1 \\
-        2 & Bar chart      & Clutch Win\% minus Regular-Season Win\% (all 30 teams)        & RQ1 \\
-        3 & Heatmap        & Pearson correlation matrix across 11 clutch variables          & RQ2 \\
-        4 & Scatter plot   & Clutch eFG\% vs Clutch Win\%                                  & RQ2 \\
-        5 & Quadrant plot  & Clutch eFG\% vs Clutch TOV\% with mean reference lines        & RQ2 \\
-        6 & Dot plot       & Top 10 vs Bottom 10 teams by Clutch Win\%                     & RQ2 \\
-        7 & Slope chart    & Regular-Season vs Clutch FG\%, top 10 clutch teams            & RQ3 \\
-        8 & Dumbbell plot  & Regular-Season vs Clutch 3P\%, top 10 clutch teams            & RQ3 \\
-        9 & Slope chart    & Regular-Season vs Clutch FT\%, top 10 clutch teams            & RQ3 \\
+        1 & Scatter plot   & Reg-season win\% vs clutch win\%                        & rq1\_plots.py                        & RQ1 \\
+        2 & Bar chart      & Clutch win\% minus reg-season win\%                     & rq1\_plots.py                        & RQ1 \\
+        3 & Heatmap        & Pearson correlation (11 clutch variables)              & rq2\_plots.py                        & RQ2 \\
+        4 & Scatter plot   & Clutch eFG\% vs clutch win\%                            & rq2\_scatter\_quadrant\_plots.py     & RQ2 \\
+        5 & Quadrant plot  & Clutch eFG\% vs clutch TOV\% with mean lines            & rq2\_scatter\_quadrant\_plots.py     & RQ2 \\
+        6 & Dot plot       & Top 10 vs bottom 10 eFG\%, TOV\%, FT\%             & rq2\_dot\_plot.py                    & RQ2 \\
+        7 & Slope chart    & Reg-season vs clutch FG\%                     & rq3\_plots.py                        & RQ3 \\
+        8 & Dumbbell plot  & Reg-season vs clutch 3P\%                     & rq3\_3pct\_plot.py                   & RQ3 \\
+        9 & Slope chart    & Reg-season vs clutch FT\%                     & rq3\_plots.py                        & RQ3 \\
         \bottomrule
     \end{tabular}
 \end{table}
+
+% ---------------------------------------------------------------
+% References
+% ---------------------------------------------------------------
+\newpage
+\bibliographystyle{plainnat}
+\nocite{*}
+\bibliography{references}
 
 \end{document}

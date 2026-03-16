@@ -1,3 +1,98 @@
 \section{Results}
 
-Lorem ipsum dolor sit
+\subsection{RQ1: Are the NBA's best regular-season teams also the most successful teams in clutch situations?}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../plots/rq1_plot1_reg_vs_clutch_win_shortnames.png}
+        \caption{Regular-season win\% vs clutch win\%.}
+        \label{fig:rq1_scatter}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../plots/rq1_plot2_clutch_minus_reg_win_shortnames.png}
+        \caption{Clutch win\% minus regular-season win\% for all 30 teams.}
+        \label{fig:rq1_bar}
+    \end{minipage}
+\end{figure}
+
+\begin{sloppypar}
+The first research question is whether strong regular-season teams also win in clutch situations. Figure 1 shows that regular season win percentage is positively related to clutch win percentage, suggesting better teams in general also do better in tight late games. Figure 2 however shows that this relationship is not exactly right. Some teams do better in clutch situations than their regular-season record would suggest, other teams underperform. Together, these figures suggest regular-season success is related to clutch success but not determinative.
+\end{sloppypar}
+
+\subsection{RQ2: Which team-level factors most strongly explain clutch success: Is it shooting efficiency, turnovers, rebounding, or free-throw generation?}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{../plots/rq2_heatmap.png}
+    \caption{Pearson correlation matrix across 11 clutch variables.}
+    \label{fig:rq2_heatmap}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{../plots/rq2_scatter_efg_vs_win.png}
+    \caption{Clutch eFG\% vs clutch win\%.}
+    \label{fig:rq2_scatter}
+\end{figure}
+
+\begin{sloppypar}
+According to the heatmap, clutch win percentage has the strongest positive correlation with clutch effective field goal percentage, while turnovers and turnover percentage possess the strongest negative correlations. Positive associations are observed with other variables, including three-point percentage and free throw related variables, but rebounding variables have a weaker correlation. In general, this figure indicates that clutch success in this dataset is most correlated with shooting efficiency and ball security.
+
+The scatter plot complements the heatmap by indicating that clutch win percentages tend to be higher for teams having higher clutch effective field goal percentages. The notion that late-game success is strongly associated with efficient scoring is supported by this. Since effective field goal percentage considers the additional value of three-pointers, it measures offensive efficiency better than regular field goal percentage alone.
+\end{sloppypar}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{../plots/rq2_quadrant_efg_vs_tov.png}
+    \caption{Quadrant plot of clutch eFG\% vs clutch TOV\% with mean reference lines.}
+    \label{fig:rq2_quadrant}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{../plots/rq2_top10_bottom10_dotplot.png}
+    \caption{Top 10 vs bottom 10 clutch teams across eFG\%, TOV\%, and FT\%.}
+    \label{fig:rq2_dotplot}
+\end{figure}
+
+\begin{sloppypar}
+The quadrant plot and top versus bottom comparison support this conclusion. Teams with the strongest clutch profiles combine high clutch effective field goal percentage with low clutch turnover percentage whereas weaker clutch teams tend to do the opposite. Together these figures suggest efficient shooting and good ball security are the key factors of clutch success, while free-throw percentage is less decisive in comparison.
+\end{sloppypar}
+
+\subsection{RQ3: How does shooting efficiency change from the regular season to clutch situations for the top 10 clutch teams?}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../plots/rq3_plot1_fg_pct_slopechart_clean.png}
+        \caption{Regular-season vs clutch FG\% for the top 10 clutch teams.}
+        \label{fig:rq3_fg}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../plots/rq3_plot3_ft_pct_slopechart_clean.png}
+        \caption{Regular-season vs clutch FT\% for the top 10 clutch teams.}
+        \label{fig:rq3_ft}
+    \end{minipage}
+\end{figure}
+
+\begin{sloppypar}
+These plots show the top clutch teams do not shoot identically in clutch situations. Field goal percentage often drops under pressure but some teams improve slightly. Free-throw percentage also changes across teams, some teams improved and some teams declined. The results in general suggest that clutch situations represent a different shooting context than regular-season performance.
+\end{sloppypar}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{../plots/rq3_plot2_3p_pct_dumbbell.png}
+    \caption{Regular-season vs clutch 3P\% for the top 10 clutch teams.}
+    \label{fig:rq3_3p}
+\end{figure}
+
+\begin{sloppypar}
+The dumbbell plot shows that three-point percentage varies a lot between regular-season and clutch situations. Some top clutch teams improved and others declined. Three-point shooting is the most unstable of the three efficiency metrics. This implies that clutch three-point performance is more variable under pressure than overall field goal or free throw shooting.
+\end{sloppypar}

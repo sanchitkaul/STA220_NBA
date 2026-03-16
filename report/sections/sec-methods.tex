@@ -3,64 +3,42 @@
 \subsection{Data Acquisition}
 
 \begin{sloppypar}
-We pulled all our data directly from NBA.com using the \texttt{nba\_api} Python library, which lets you query the same endpoints
-that power the \texttt{stats.nba.com} website. For the 2024-25 regular season, three separate tables were downloaded at the team level.
+All statistics were retrieved from the Statistics provided by the NBA which can be found on their website as well as the statistics derived through an application programming interface (API) using the NBA API library in Python. These 3 requests were made to the API for the 2024-25 NBA Season with the PerGame method of statistical display.
 
-The first was the clutch traditional stats table, which we got from the \texttt{LeagueDashTeamClutch} endpoint using the Base
-measure type. This gives standard box score numbers (points, field goal percentage, turnovers, and so on) but only
-for clutch situations. The second pull used the same endpoint but switched to the Four Factors measure type, which returns
-Dean Oliver's four factors: effective field goal percentage, turnover rate, free throw rate, and offensive rebounding
-percentage. The third dataset came from \texttt{LeagueDashTeamStats} and covered the full regular season using the Base
-measure type, giving us the same box score columns but aggregated across all games, not just the close ones.
+The first of the 3 requests was to the LeagueDashTeamClutch (measure\_type = Base) endpoint within the NBA API and contained as part of the request all of the traditional box score stats from a game including games played, games won, win \%, points, field goal \%, 3 point attempts and \% made, free throw attempts and \% made, rebound, assists, turnovers, and +/-, in the ``Clutch'' Time of a game (last 5 minutes of the game, score differential +/- 5 points or less).
 
-Every call used \texttt{per\_mode = ``PerGame''} and was set to the 2024-25 regular season. For the clutch-specific
-calls, we also passed \texttt{clutch\_time = ``Last 5 Minutes''}, \texttt{ahead\_behind = ``Ahead or Behind''}, and
-\texttt{point\_diff = 5}, which is exactly how the NBA defines a clutch situation. We added a short sleep between
-requests so we did not get rate-limited. The three files were saved as \texttt{clutch\_traditional.csv},
-\texttt{clutch\_four\_factors.csv}, and \texttt{regular\_traditional.csv}.
+The second request was to the LeagueDashTeamClutch (measure\_type = Four Factors) endpoint within the NBA API and contained as part of the request the same four efficiency statistical measures created by Dean Oliver to evaluate teams' performances in the ``Clutch'' Time of the game as in the first request.
+
+The final request was made to the LeagueDashTeamStats (measure\_type = Base) endpoint within the NBA API and was to obtain the same traditional statistical results for all 30 NBA teams for the entire regular season with no ``Clutch'' Time filter applied to the results.
+
+The two requests for ``Clutch'' Time statistics included the following three parameters: (i) clutch\_time=Last 5 Minutes; (ii) ahead\_behind=Ahead or Behind; and (iii) point\_diff=5. A 1-second delay between requests (time.sleep(1)) was used to comply with the NBA API's rate limit on the total number of requests allowed in a specified time period. The results of the three requests were saved in the following files: clutch\_traditional.csv, clutch\_four\_factors.csv, regular\_traditional.csv.
 \end{sloppypar}
 
 \subsection{Data Cleaning and Preprocessing}
 
 \begin{sloppypar}
-Once we had the raw files loaded into pandas DataFrames, we did a few rounds of cleaning before anything else.
-
-First, we trimmed each dataset down to only the columns we actually needed. Team IDs, league IDs, and rank columns were
-all dropped since they added no analytical value. The columns we kept from each file are listed in Table~\ref{tab:columns}.
-After that, we ran \texttt{.str.strip()} on all the team name fields, as there were some trailing spaces that would have
-broken the merge otherwise.
-
-We also renamed every variable using a prefix system: anything from the clutch datasets got a \texttt{clutch\_} prefix,
-and regular season columns got \texttt{reg\_}. So for example \texttt{W\_PCT} became either \texttt{clutch\_win\_pct} or
-\texttt{reg\_win\_pct} depending on which file it came from. This made it easy to tell variables apart throughout the
-rest of the analysis without having to look anything up.
-
-Before merging, we also checked for duplicate team entries in each file. None were found. Data types looked fine across
-the board; everything numeric was already float or int, so no conversion was needed.
+The nba\_merged.py script performed the majority of our cleaning using pandas. For all data in the dataframes we kept only those columns that were relevant to our analysis (Table 1); we discarded any other data that the API returns as a default, such as administrative fields (e.g., TEAM\_ID, LEAGUE\_ID, and RANK) that have no bearing on our analysis. We removed any trailing whitespace from team names with .str.strip() so we could ensure they would not fail due to being matched as strings in the merge operation. Then, we renamed all columns to have either the prefix clutch\_ or reg\_. Therefore, every column in the merged data has an unambiguous name that indicates what is being measured and the context from which it came (e.g., W\_PCT becomes clutch\_win\_pct or reg\_win\_pct). The complete rename mappings can be found in the python script.
 \end{sloppypar}
 
 \begin{table}[ht]
     \centering
-    \caption{Columns kept from each source file.}
+    \caption{Columns retained from each source file and prefix applied after renaming.}
     \label{tab:columns}
     \renewcommand{\arraystretch}{1.4}
     \small
     \begin{tabular}{@{} l p{8cm} l @{}}
         \toprule
-        \textbf{Dataset} & \textbf{Columns Retained} & \textbf{Prefix} \\
+        \textbf{Source File} & \textbf{Columns Retained} & \textbf{Prefix} \\
         \midrule
-        \texttt{clutch\_traditional.csv}  &
-            \texttt{TEAM\_NAME, GP, W, L, W\_PCT, PTS, FG\_PCT,} \newline
-            \texttt{FG3\_PCT, FT\_PCT, REB, AST, TOV, PLUS\_MINUS} &
-            \texttt{clutch\_} \\[6pt]
-        \texttt{clutch\_four\_factors.csv} &
-            \texttt{TEAM\_NAME, EFG\_PCT, FTA\_RATE,} \newline
-            \texttt{TM\_TOV\_PCT, OREB\_PCT} &
-            \texttt{clutch\_} \\[6pt]
-        \texttt{regular\_traditional.csv} &
-            \texttt{TEAM\_NAME, GP, W, L, W\_PCT, PTS, FG\_PCT,} \newline
-            \texttt{FG3\_PCT, FT\_PCT, REB, AST, TOV, PLUS\_MINUS} &
-            \texttt{reg\_} \\
+        clutch\_traditional.csv  &
+            TEAM\_NAME, GP, W, L, W\_PCT, PTS, FG\_PCT, FG3A, FG3\_PCT, FT\_PCT, FTA, REB, AST, TOV, PLUS\_MINUS &
+            clutch\_ \\[6pt]
+        clutch\_four\_factors.csv &
+            TEAM\_NAME, EFG\_PCT, FTA\_RATE, TM\_TOV\_PCT, OREB\_PCT &
+            clutch\_ \\[6pt]
+        regular\_traditional.csv &
+            TEAM\_NAME, GP, W, L, W\_PCT, PTS, FG\_PCT, FG3A, FG3\_PCT, FT\_PCT, FTA, REB, AST, TOV, PLUS\_MINUS &
+            reg\_ \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -68,45 +46,38 @@ the board; everything numeric was already float or int, so no conversion was nee
 \subsection{Dataset Merging}
 
 \begin{sloppypar}
-We merged the three cleaned tables in two steps, both using inner joins on the team name column. First,
-\texttt{clutch\_traditional} and \texttt{clutch\_four\_factors} were joined together. Then that combined table was joined
-with \texttt{reg\_traditional}. Since all three files came from the same season and covered all 30 teams, no rows dropped
-out during either join. The final dataset, \texttt{nba\_clutch\_merged.csv}, has one row per team, 30 rows total,
-and 33 columns.
+Merge of the 3 DataFrames was completed in 2 steps by merging the Clutch Traditional and Clutch Four Factor data on the Team column and then merging the result with the Regular Season DataFrame on the same Team column. Both merges used an Inner Join so only complete records for each team would remain in the final output.
+
+Prior to merging, there were zero duplicate team names in each DataFrame (verified using .duplicated().sum()), and we confirmed before merging that all numeric columns were already typed as either float or integer.
+
+All 30 teams in the NBA were contained across every source file; thus no teams were dropped from the final output. The final output of merging the 3 DataFrames is a csv file (nba\_clutch\_merged.csv) containing 30 rows and 33 columns listing Clutch and Regular Season Statistics for the 2024-25 season side by side.
 \end{sloppypar}
 
-\subsection{Feature Engineering}
+\subsection{Feature Engineering and Transformations}
 
 \begin{sloppypar}
-We created one new variable for RQ1. To see which teams over- or under-performed in clutch situations compared to their
-overall record, we subtracted regular season win percentage from clutch win percentage:
+One derived variable was created in rq1\_plots.py:
+
+\emph{clutch\_minus\_reg\_win\_pct = clutch\_win\_pct $-$ reg\_win\_pct}
+
+When analyzing whether a team has been successful in clutch situations, a positive number indicates that they won more close calls than they typically would based on the overall performance of their team whereas a negative value would mean that the team's winning total is lower than what would normally be expected given their overall successes and failures. This figure serves as the basis for the bar chart in Figure 2 (RQ1).
+
+Several plotting scripts also applied a short-name mapping dictionary (e.g., ``Oklahoma City Thunder'' $\to$ ``Thunder'') via .replace(short\_names) before plotting, because full team names caused heavy label overlap in early drafts of the scatter and bar charts. The RQ2 dot plot and all three RQ3 scripts filtered the dataset to the top 10 (or bottom 10) teams by clutch win percentage using .sort\_values(``clutch\_win\_pct'', ascending=False).head(10), then re-sorted within each group from lowest to highest so that the charts read intuitively from bottom to top.
 \end{sloppypar}
 
-\begin{equation}
-    \texttt{clutch\_minus\_reg\_win\_pct} \;=\; \texttt{clutch\_win\_pct} \;-\; \texttt{reg\_win\_pct}
-\end{equation}
-
-A positive value means the team won more clutch games than you would expect based on their season record. A negative
-value means the opposite. This column drives the bar chart in Plot 2 of RQ1.
-
-\subsection{Statistical Analysis}
+\subsection{Correctness and Justification of Statistical Methods}
 
 \begin{sloppypar}
-For RQ2, the main method was Pearson correlation. We used \texttt{DataFrame.corr()} in pandas to calculate the
-correlation between \texttt{clutch\_win\_pct} and ten other clutch-time variables:
+RQ2 used an 11 $\times$ 11 Pearson correlation matrix to determine the pairwise correlation between clutch win percentage (clutch\_win\_pct) and the ten clutch-time statistics detailed in Table 1: clutch\_fg\_pct, clutch\_3p\_pct, clutch\_ft\_pct, clutch\_efg\_pct, clutch\_tov, clutch\_tov\_pct, clutch\_reb, clutch\_orb\_pct, clutch\_ft\_rate, and clutch\_fta. Pearson was chosen, because it measures the strength of a linear relationship between two continuous variables -- exactly what we wanted to quantify: which clutch statistics varied linearly with clutch win percentage.
 
-\begin{center}
-\texttt{clutch\_fg\_pct},\ \texttt{clutch\_3p\_pct},\ \texttt{clutch\_ft\_pct},\ \texttt{clutch\_efg\_pct},\
-\texttt{clutch\_tov},\ \texttt{clutch\_tov\_pct},\ \texttt{clutch\_reb},\ \texttt{clutch\_orb\_pct},\
-\texttt{clutch\_ft\_rate},\ \texttt{clutch\_fta}
-\end{center}
+Because all eleven variables are continuous (either as percentages or as averages per game), the measurement level of each variable met the requirement for this analysis.
 
-We went with Pearson because all the variables are continuous and we were interested in linear relationships. We did not
-build any predictive models; the goal here was exploratory, not inferential.
+To validate the linearity assumption, we created scatterplots of the two variables with the strongest linear correlations (clutch eFG\% versus clutch win percentage [Figure 4] and clutch eFG\% versus clutch TOV\% [Figure 5]) and both of them exhibited an approximate linearity without obvious curvature.
 
-For RQ3, we filtered down to just the ten teams with the highest \texttt{clutch\_win\_pct} and compared their shooting
-percentages between the regular season and clutch play. That meant pairing up \texttt{reg\_fg\_pct} with
-\texttt{clutch\_fg\_pct}, \texttt{reg\_3p\_pct} with \texttt{clutch\_3p\_pct}, and \texttt{reg\_ft\_pct} with
-\texttt{clutch\_ft\_pct} for each of those teams.
+In addition, each variable was examined for extreme outliers that could have inflated or deflated Pearson's r. No single team had values that were so far removed from the other teams' values that they could have biased the results.
+
+Spearman's rank would have been a valid alternative if the relationship between two variables was monotonic; neither of the two issues (monotonicity; extreme outliers) was evident in our scatterplots. Thus, when selecting a method to measure the relationship between each clutch statistic and clutch win percentage, Pearson provided the maximum amount of information per data point because it was not only measuring whether the data move in the same direction but also how closely clustered the data were around a linear trend.
+
+Since there are only n = 30 teams, the correlations produced should be viewed as descriptive summary statistics representing the data from the current season, rather than as inferential evidence applicable to all future seasons beyond the 2024-25 season. We did not conduct hypothesis testing on individual correlation coefficients nor did we fit a regression predictive model because thirty observations do not provide sufficient power for reliable regression with multiple predictor variables. Therefore, the heatmap and subsequent scatterplots are intended solely for exploratory analysis of the various factors that stand out rather than for making formal causal claims.
 \end{sloppypar}
 
